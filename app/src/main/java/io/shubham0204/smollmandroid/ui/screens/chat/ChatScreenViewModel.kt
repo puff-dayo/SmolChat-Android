@@ -100,7 +100,7 @@ class ChatScreenViewModel(
 
     private var responseGenerationJob: Job? = null
     private val smolLM = SmolLM()
-    
+
     var responseGenerationsSpeed: Float? = null
     var responseGenerationTimeSecs: Int? = null
     val markwon: Markwon
@@ -189,7 +189,7 @@ class ChatScreenViewModel(
 
                         val output = if (!chat.removeThink) {
                             Regex("<think>(.*?)</think>", RegexOption.DOT_MATCHES_ALL).replace(_partialResponse.value) { matchResult ->
-                                "<blockquote>${matchResult.groupValues[1]}</blockquote>"
+                                "<blockquote>${matchResult.groupValues[1]}</blockquote>\n"
                             }
                         } else {
                             Regex("<think>.*?</think>", RegexOption.DOT_MATCHES_ALL).replace(_partialResponse.value) { _ ->
