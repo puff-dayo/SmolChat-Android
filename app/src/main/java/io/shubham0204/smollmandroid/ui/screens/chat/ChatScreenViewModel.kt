@@ -21,6 +21,7 @@ import android.graphics.Color
 import android.text.util.Linkify
 import android.util.Log
 import android.util.TypedValue
+import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModel
 import io.noties.markwon.AbstractMarkwonPlugin
@@ -188,10 +189,20 @@ class ChatScreenViewModel(
                             }
                         // Replace <think> tags with <blockquote> tags
                         // to get a neat Markdown rendering
-                        _partialResponse.value =
-                            findThinkTagRegex.replace(_partialResponse.value) { matchResult ->
-                                "<blockquote>${matchResult.groupValues[1]}</blockquote>"
-                            }
+                        
+                        if (!chat.removeThink) {
+                            _partialResponse.value =
+                                findThinkTagRegex.replace(_partialResponse.value) { matchResult ->
+                                    "<blockquote>Removed: ${matchResult.groupValues[1]}</blockquote>"
+                                }
+                        }
+                        else {
+                            _partialResponse.value =
+                                findThinkTagRegex.replace(_partialResponse.value) { matchResult ->
+                                    "<blockquote>${matchResult.groupValues[1]}</blockquote>"
+                                }
+                        }
+
                         // once the response is generated
                         // add to the messages database
                         // and update the context length used for the current chat

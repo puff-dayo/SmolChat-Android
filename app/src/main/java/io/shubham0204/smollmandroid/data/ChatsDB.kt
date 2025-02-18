@@ -40,6 +40,7 @@ data class Chat(
     var isTask: Boolean = false,
     var contextSize: Int = 0,
     var contextSizeConsumed: Int = 0,
+    var removeThink: Boolean = false,
 )
 
 @Single

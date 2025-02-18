@@ -84,4 +84,5 @@
     <string name="download_model_hf_screen_title">从 HuggingFace 浏览模型</string>
     <string name="download_model_hf_search_label">搜索模型...</string>
     <string name="download_model_hf_details_title">模型详情</string>
+    <string name="chat_settings_remove_think">自动移除思考标签</string>
 </resources>

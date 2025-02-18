@@ -74,6 +74,7 @@ fun EditChatSettingsScreen(
         var temperature by remember { mutableFloatStateOf(chat.temperature) }
         var contextSize by remember { mutableIntStateOf(chat.contextSize) }
         var takeContextSizeFromModel by remember { mutableStateOf(false) }
+        var removeThinkTagAuto by remember { mutableStateOf(false) }
         val context = LocalContext.current
         val llmModel = viewModel.modelsRepository.getModelFromId(chat.llmModelId)
         SmolLMAndroidTheme {
@@ -99,6 +100,7 @@ fun EditChatSettingsScreen(
                                             minP = minP,
                                             temperature = temperature,
                                             contextSize = contextSize,
+                                            removeThink = removeThinkTagAuto,
                                         )
                                     if (chat != updatedChat) {
                                         viewModel.updateChat(updatedChat)
@@ -263,6 +265,16 @@ fun EditChatSettingsScreen(
                         )
                         Text(
                             text = stringResource(R.string.chat_settings_take_from_gguf),
+                            style = MaterialTheme.typography.labelSmall,
+                        )
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = removeThinkTagAuto,
+                            onCheckedChange = { removeThinkTagAuto = it },
+                        )
+                        Text(
+                            text = stringResource(R.string.chat_settings_remove_think),
                             style = MaterialTheme.typography.labelSmall,
                         )
                     }
