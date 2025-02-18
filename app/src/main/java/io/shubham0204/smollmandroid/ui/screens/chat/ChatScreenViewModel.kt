@@ -100,10 +100,7 @@ class ChatScreenViewModel(
 
     private var responseGenerationJob: Job? = null
     private val smolLM = SmolLM()
-
-    // regex to replace <think> tags with <blockquote>
-    // to render them correctly in Markdown
-    private val findThinkTagRegex = Regex("<think>(.*?)</think>")
+    
     var responseGenerationsSpeed: Float? = null
     var responseGenerationTimeSecs: Int? = null
     val markwon: Markwon
@@ -189,24 +186,21 @@ class ChatScreenViewModel(
                             }
                         // Replace <think> tags with <blockquote> tags
                         // to get a neat Markdown rendering
-                        
-                        if (!chat.removeThink) {
-                            _partialResponse.value =
-                                findThinkTagRegex.replace(_partialResponse.value) { matchResult ->
-                                    "<blockquote>Removed: ${matchResult.groupValues[1]}</blockquote>"
-                                }
-                        }
-                        else {
-                            _partialResponse.value =
-                                findThinkTagRegex.replace(_partialResponse.value) { matchResult ->
-                                    "<blockquote>${matchResult.groupValues[1]}</blockquote>"
-                                }
+
+                        val output = if (!chat.removeThink) {
+                            Regex("<think>(.*?)</think>", RegexOption.DOT_MATCHES_ALL).replace(_partialResponse.value) { matchResult ->
+                                "<blockquote>${matchResult.groupValues[1]}</blockquote>"
+                            }
+                        } else {
+                            Regex("<think>.*?</think>", RegexOption.DOT_MATCHES_ALL).replace(_partialResponse.value) { _ ->
+                                ""
+                            }
                         }
 
                         // once the response is generated
                         // add to the messages database
                         // and update the context length used for the current chat
-                        messagesDB.addAssistantMessage(chat.id, _partialResponse.value)
+                        messagesDB.addAssistantMessage(chat.id, output)
                         chatsDB.updateChat(chat.copy(contextSizeConsumed = smolLM.getContextLengthUsed()))
                         withContext(Dispatchers.Main) {
                             _isGeneratingResponse.value = false
@@ -301,7 +295,9 @@ class ChatScreenViewModel(
                                     }
                                 }
                             }
-                            withContext(Dispatchers.Main) { _modelLoadState.value = ModelLoadingState.SUCCESS }
+                            withContext(Dispatchers.Main) {
+                                _modelLoadState.value = ModelLoadingState.SUCCESS
+                            }
                         } catch (e: Exception) {
                             _modelLoadState.value = ModelLoadingState.FAILURE
                             createAlertDialog(
@@ -331,11 +327,11 @@ class ChatScreenViewModel(
             createAlertDialog(
                 dialogTitle = context.getString(R.string.dialog_ctx_usage_title),
                 dialogText =
-                    context.getString(
-                        R.string.dialog_ctx_usage_text,
-                        chat.contextSizeConsumed,
-                        chat.contextSize,
-                    ),
+                context.getString(
+                    R.string.dialog_ctx_usage_text,
+                    chat.contextSizeConsumed,
+                    chat.contextSize,
+                ),
                 dialogPositiveButtonText = context.getString(R.string.dialog_ctx_usage_close),
                 onPositiveButtonClick = {},
                 dialogNegativeButtonText = null,
